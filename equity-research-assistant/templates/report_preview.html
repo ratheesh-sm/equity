@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Report Preview - Equity Research Assistant{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Report Preview: {{ company_name }} - {{ quarter }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Export Options -->
+                <div class="mb-3">
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('download_report', format='pdf') }}" class="btn btn-outline-danger">
+                            <i class="fas fa-file-pdf me-1"></i>
+                            Export PDF
+                        </a>
+                        <a href="{{ url_for('download_report', format='docx') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-word me-1"></i>
+                            Export Word
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Report Content -->
+                <div class="report-container">
+                    {{ report_content | safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.report-container {
+    background: white;
+    color: #333;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+@media print {
+    .report-container {
+        box-shadow: none;
+        max-height: none;
+        overflow: visible;
+    }
+}
+</style>
+{% endblock %}

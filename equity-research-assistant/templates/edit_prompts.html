@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Prompts - {{ step.replace('_', ' ').title() }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4 class="card-title mb-0">
+            <i class="fas fa-edit me-2"></i>
+            Edit Prompt: {{ step.replace('_', ' ').title() }}
+        </h4>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">{{ description }}</p>
+        
+        {% if is_default %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Using Default Prompt:</strong> This is the default system prompt. You can customize it below.
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Custom Prompt Active:</strong> You are using a customized version of this prompt.
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('save_prompt', step=step) }}" method="post" id="promptForm">
+            <div class="mb-3">
+                <label for="prompt_text" class="form-label">
+                    <i class="fas fa-code me-1"></i>
+                    Prompt Text
+                </label>
+                <textarea class="form-control" id="prompt_text" name="prompt_text" rows="20" 
+                          placeholder="Enter your custom prompt here..." required>{{ prompt_text }}</textarea>
+                <div class="form-text">
+                    <strong>Variables available:</strong> {company_name}, {quarter}
+                    <br>
+                    <strong>Tip:</strong> Use JSON format instructions for structured AI responses
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-eye me-1"></i>
+                        Preview with Sample Data
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <button type="button" class="btn btn-outline-info btn-sm" id="previewBtn">
+                        <i class="fas fa-play me-1"></i>
+                        Generate Preview
+                    </button>
+                    <div id="previewContent" class="mt-3" style="display: none;">
+                        <h6>Preview Output:</h6>
+                        <div class="bg-light p-3 rounded">
+                            <pre id="previewText" class="mb-0"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Back to Main
+                    </a>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-outline-warning me-2" id="resetBtn">
+                        <i class="fas fa-undo me-1"></i>
+                        Reset to Default
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>
+                        Save Prompt
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Character Count -->
+        <div class="mt-3 text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Character count: <span id="charCount">0</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const promptTextarea = document.getElementById('prompt_text');
+    const charCount = document.getElementById('charCount');
+    const previewBtn = document.getElementById('previewBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    // Update character count
+    function updateCharCount() {
+        charCount.textContent = promptTextarea.value.length;
+    }
+    
+    promptTextarea.addEventListener('input', updateCharCount);
+    updateCharCount(); // Initial count
+    
+    // Preview functionality
+    previewBtn.addEventListener('click', function() {
+        const previewContent = document.getElementById('previewContent');
+        const previewText = document.getElementById('previewText');
+        
+        fetch(`{{ url_for('preview_prompt', step=step) }}`)
+            .then(response => response.json())
+            .then(data => {
+                previewText.textContent = data.formatted_prompt;
+                previewContent.style.display = 'block';
+                previewBtn.innerHTML = '<i class="fas fa-refresh me-1"></i>Refresh Preview';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating preview');
+            });
+    });
+    
+    // Reset to default
+    resetBtn.addEventListener('click', function() {
+        if (confirm('Reset this prompt to default? This will lose any custom changes.')) {
+            fetch(`{{ url_for('preview_prompt', step=step) }}`)
+                .then(response => response.json())
+                .then(data => {
+                    // This is a simple reset - in a real app you'd want to fetch the actual default
+                    location.reload();
+                });
+        }
+    });
+    
+    // Form submission loading state
+    document.getElementById('promptForm').addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Step 3: Final Report - Equity Research Assistant{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Step 3: Final Research Report
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-building me-1"></i> Company: {{ session_data.company_name }}</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar me-1"></i> Quarter: {{ session_data.quarter }}</h6>
+                    </div>
+                </div>
+
+                <p class="text-muted">
+                    Your comprehensive equity research report has been generated. Review the content below and download in your preferred format.
+                </p>
+
+                <!-- Export Options -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-download me-1"></i>
+                                    Export Options
+                                </h6>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('download_report', format='pdf') }}" class="btn btn-outline-danger">
+                                        <i class="fas fa-file-pdf me-1"></i>
+                                        Download PDF
+                                    </a>
+                                    <a href="{{ url_for('download_report', format='docx') }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-file-word me-1"></i>
+                                        Download Word
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Preview -->
+                {% if final_report %}
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-eye me-1"></i>
+                            Report Preview
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="report-preview">
+                            {{ final_report | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-danger">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Report Generation Error
+                    </h6>
+                    <p class="mb-0">Unable to generate the final report. This could be due to:</p>
+                    <ul class="mt-2 mb-0">
+                        <li>Missing financial data or transcript analysis</li>
+                        <li>Report generation service issues</li>
+                        <li>Data formatting problems</li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="{{ url_for('step2') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Analysis
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <a href="{{ url_for('step2') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Analysis
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="{{ url_for('reset_session') }}" class="btn btn-outline-info">
+                            <i class="fas fa-plus me-1"></i>
+                            Start New Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.report-preview {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: #fff;
+    color: #333;
+}
+
+.report-preview .header {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.report-preview .company-name {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.report-preview .quarter {
+    font-size: 20px;
+    color: #666;
+}
+
+.report-preview .section {
+    margin-bottom: 30px;
+}
+
+.report-preview .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.report-preview .financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.report-preview .financial-table th,
+.report-preview .financial-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.report-preview .financial-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.report-preview .content {
+    line-height: 1.6;
+}
+
+.report-preview .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    color: #666;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

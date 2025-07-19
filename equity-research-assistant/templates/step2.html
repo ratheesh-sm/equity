@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Step 2: Transcript Analysis - Equity Research Assistant{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-brain me-2"></i>
+                    Step 2: Transcript Analysis
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-building me-1"></i> Company: {{ session_data.company_name }}</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar me-1"></i> Quarter: {{ session_data.quarter }}</h6>
+                    </div>
+                </div>
+
+                <p class="text-muted">
+                    AI-powered analysis of the earnings transcript has been completed. Review the extracted insights below and edit if necessary.
+                </p>
+
+                {% if transcript_analysis %}
+                <form action="{{ url_for('edit_analysis') }}" method="post" id="analysisForm">
+                    <div class="row">
+                        <!-- Management Commentary -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-users me-1"></i>
+                                        Management Commentary
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" name="management_commentary" rows="6" 
+                                              placeholder="Key management statements and outlook...">{{ transcript_analysis.management_commentary or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strategic Themes -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-bullseye me-1"></i>
+                                        Strategic Themes
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" name="strategic_themes" rows="6" 
+                                              placeholder="Major strategic initiatives and business themes...">{{ transcript_analysis.strategic_themes or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Risks and Tailwinds -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-balance-scale me-1"></i>
+                                        Risks and Tailwinds
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" name="risks_and_tailwinds" rows="6" 
+                                              placeholder="Identified risks and positive factors...">{{ transcript_analysis.risks_and_tailwinds or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Q&A Insights -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-question-circle me-1"></i>
+                                        Q&A Insights
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" name="qa_insights" rows="6" 
+                                              placeholder="Key insights from the Q&A session...">{{ transcript_analysis.qa_insights or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Insights (Read-only) -->
+                    <div class="row">
+                        {% if transcript_analysis.financial_highlights %}
+                        <div class="col-lg-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        Financial Highlights
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ transcript_analysis.financial_highlights }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if transcript_analysis.market_dynamics %}
+                        <div class="col-lg-6 mb-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-globe me-1"></i>
+                                        Market Dynamics
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ transcript_analysis.market_dynamics }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('step1') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Back to Financial Data
+                            </a>
+                        </div>
+                        <div class="col-md-8 text-end">
+                            <button type="submit" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-edit me-1"></i>
+                                Save Edits
+                            </button>
+                            <a href="{{ url_for('approve_analysis') }}" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i>
+                                Approve and Continue
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                {% else %}
+                <div class="alert alert-danger">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Analysis Error
+                    </h6>
+                    <p class="mb-0">Unable to analyze the transcript. This could be due to:</p>
+                    <ul class="mt-2 mb-0">
+                        <li>PDF text extraction issues</li>
+                        <li>OpenAI API connectivity problems</li>
+                        <li>Invalid or corrupted PDF file</li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-upload me-1"></i>
+                            Try Re-uploading Files
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-save functionality
+let autoSaveTimeout;
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            // Show saving indicator
+            const originalBtn = document.querySelector('button[type="submit"]');
+            const originalText = originalBtn.innerHTML;
+            originalBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Auto-saving...';
+            
+            // Submit form
+            document.getElementById('analysisForm').submit();
+        }, 3000); // Auto-save after 3 seconds of inactivity
+    });
+});
+</script>
+{% endblock %}
